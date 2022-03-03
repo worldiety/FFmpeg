@@ -1,0 +1,15 @@
+#!/bin/bash
+
+
+set -e
+
+if [ -z "${WDY_XBUILD_ROOT}" ]; then
+	echo "WDY_XBUILD_ROOT not set"
+	exit 1
+fi
+
+for i in libavutil libswscale libswresample libavcodec libavformat  libavdevice libavfilter ; do
+	${WDY_XBUILD_ROOT}/bin/make_aar $i
+done
+
+

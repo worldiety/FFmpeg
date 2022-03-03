@@ -1,0 +1,179 @@
+#!/bin/bash
+
+
+set -e
+
+if [ -z "${WDY_XBUILD_ROOT}" ]; then
+	echo "WDY_XBUILD_ROOT not set"
+	exit 1
+fi
+
+SRC=$(dirname $(readlink -f "$0"))
+
+
+
+# Build options for ffmpeg - library configuration
+LIBRARY_OPTS="\
+--disable-demuxers \
+--disable-muxers \
+--disable-bsfs \
+--disable-parsers \
+--disable-decoders \
+--disable-encoders \
+--disable-filters \
+--disable-protocols \
+--enable-decoder=mpegvideo \
+--enable-decoder=mpeg2video \
+--enable-decoder=mpeg4 \
+--enable-encoder=mpeg4 \
+--enable-decoder=h264 \
+--enable-encoder=ac3 \
+--enable-decoder=h263 \
+--enable-decoder=wmv1 \
+--enable-decoder=wmv2 \
+--enable-decoder=wmv3 \
+--enable-decoder=libvpx_vp8 \
+--enable-encoder=libvpx_vp8 \
+--enable-decoder=libvpx_vp9 \
+--enable-encoder=aac \
+--enable-decoder=aac \
+--enable-decoder=vp8 \
+--enable-decoder=hevc \
+--enable-decoder=wmav1 \
+--enable-decoder=wmav2 \
+--enable-decoder=wmavoice \
+--enable-demuxer=matroska \
+--enable-demuxer=webm_dash_manifest \
+--enable-demuxer=mpegps \
+--enable-demuxer=mpegts \
+--enable-demuxer=mpegtsraw \
+--enable-demuxer=mpegvideo \
+--enable-demuxer=h264 \
+--enable-muxer=h264 \
+--enable-muxer=mp4 \
+--enable-demuxer=asf \
+--enable-demuxer=h263 \
+--enable-demuxer=mov \
+--enable-demuxer=avi \
+--enable-parser=mpeg4video \
+--enable-parser=mpegvideo \
+--enable-parser=h263 \
+--enable-parser=h264 \
+--enable-parser=hevc \
+--enable-parser=vp8 \
+--enable-parser=vp9 \
+--enable-filter=scale \
+--enable-filter=fps \
+--enable-filter=format \
+--enable-filter=setsar \
+--enable-filter=setdar \
+--enable-filter=settb \
+--enable-filter=setpts \
+--enable-filter=asettb \
+--enable-filter=aformat \
+--enable-filter=aresample \
+--enable-filter=anull \
+--enable-filter=asetnsamples \
+--enable-protocol=file \
+--disable-v4l2-m2m \
+--disable-libv4l2 \
+--disable-devices \
+--disable-static \
+--enable-shared \
+--enable-pic \
+--disable-vulkan \
+--disable-cuda \
+--enable-lto
+"
+
+
+
+num_builds=5
+
+# build[X]_config
+
+build0_env="linux"
+build0_config="\
+	--prefix=${WDY_XBUILD_ROOT}/linux \
+	--disable-vdpau \
+"
+
+build1_env="x86"
+build1_config="\
+	--cross-prefix=i686-linux-android21- \
+	--target-os=android \
+	--arch=x86 \
+	--pkg-config=pkgconf \
+	--nm=llvm-nm \
+	--prefix=${WDY_XBUILD_ROOT}/x86 \
+	--enable-cross-compile \
+	--disable-asm \
+"
+
+build2_env="armeabi-v7a"
+build2_config="\
+	--cross-prefix=armv7a-linux-androideabi21- \
+	--target-os=android \
+	--arch=armv7a \
+	--pkg-config=pkgconf \
+	--nm=llvm-nm \
+	--prefix=${WDY_XBUILD_ROOT}/armeabi-v7a \
+	--enable-cross-compile \
+"
+
+
+build3_env="x86_64"
+build3_config="\
+	--cross-prefix=x86_64-linux-android21- \
+	--target-os=android \
+	--arch=x86_64 \
+	--pkg-config=pkgconf \
+	--nm=llvm-nm \
+	--prefix=${WDY_XBUILD_ROOT}/x86_64 \
+	--enable-cross-compile \
+"
+
+build4_env="arm64-v8a"
+build4_config="\
+	--cross-prefix=aarch64-linux-android21- \
+	--target-os=android \
+	--arch=aarch64 \
+	--pkg-config=pkgconf \
+	--nm=llvm-nm \
+	--prefix=${WDY_XBUILD_ROOT}/arm64-v8a \
+	--enable-cross-compile \
+"
+
+
+
+build() {
+	set -e
+	ENV=$1
+	shift 1
+	
+	. ${WDY_XBUILD_ROOT}/bin/android-env ${ENV}
+	
+	BLD=$(mktemp -d -t ffmpeg-build-XXXXXXXX)
+	cd ${BLD}
+
+	${SRC}/configure ${LIBRARY_OPTS} "$@" --extra-cflags="${CFLAGS}" --extra-cxxflags="${CFLAGS}" --extra-ldflags="${LDFLAGS}"
+
+	make -j8
+	make install
+	
+	rm -rf ${BLD}
+}
+
+
+declare -i ctr=0
+while [ $ctr -lt ${num_builds} ]; do
+	config_env=build${ctr}_env
+	config_name=build${ctr}_config
+	build ${!config_env} ${!config_name}
+	
+	ctr=$ctr+1
+done
+
+${WDY_XBUILD_ROOT}/bin/prepare_libraries.sh
+
+
