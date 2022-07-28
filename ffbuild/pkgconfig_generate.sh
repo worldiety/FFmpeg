@@ -27,10 +27,10 @@ requires=${requires%, }
 version=$(grep ${name}_VERSION= $name/${name}.version | cut -d= -f2)
 
 cat <<EOF > $name/$fullname.pc
-prefix=${pcfiledir}/../..
+prefix=\${pcfiledir}/../..
 exec_prefix=\${prefix}
-libdir=$libdir
-includedir=$incdir
+libdir=\${prefix}/lib
+includedir=\${prefix}/include
 
 Name: $fullname
 Description: $comment

@@ -6,7 +6,7 @@ from conan.tools.files import replace_in_file
 from conan.tools.env import Environment
 
 class FFmpegConan(ConanFile):
-    name = "FFmpeg"
+    name = "ffmpeg"
     version = "4.4.1"
 
     description = "A complete, cross-platform solution to record, convert and stream audio and video"
