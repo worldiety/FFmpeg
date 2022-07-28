@@ -28,6 +28,7 @@ class FFmpegConan(ConanFile):
         "shared": True,
         "fPIC": True,    
     }
+    build_requires = "nasm/[]"
     
     
     
