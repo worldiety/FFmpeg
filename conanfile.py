@@ -122,7 +122,9 @@ class FFmpegConan(ConanFile):
     
     def _build_options(self):
         if not cross_building(self):
-            return []            
+            return [
+                f"--arch={self._arch}",
+            ]            
         s = self.settings
         chost = os.environ["CHOST"]
         
@@ -201,7 +203,7 @@ class FFmpegConan(ConanFile):
 
         tc.configure_args.clear()
         if self.settings.arch == "x86": tc.configure_args.append("--disable-asm")
-        
+
         tc.configure_args += [
             "--disable-doc",
             f"--prefix={self.package_folder}",
