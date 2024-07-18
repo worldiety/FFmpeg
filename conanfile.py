@@ -119,8 +119,8 @@ class FFmpegConan(ConanFile):
         
         e = lambda x: os.environ[x] if x in os.environ else "false"
        
-        if s.os == "Android":
-            arch = re.match("([^-]+)-.*", e("CC")).group(1)
+        if s.os == "Android" and s.arch == "armv7":
+            arch = "arm"
         else:
             arch = re.match("([^-]+)-.*", chost).group(1)
         
