@@ -9,7 +9,7 @@ from conan.tools.build import build_jobs, cross_building
 
 class FFmpegConan(ConanFile):
     name = "ffmpeg"
-    version = "4.4.1"
+    version = "4.4.4"
 
     description = "A complete, cross-platform solution to record, convert and stream audio and video"
     topics = ("audio", "video")

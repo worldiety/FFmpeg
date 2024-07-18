@@ -1,6 +1,267 @@
 Entries are sorted chronologically from oldest to youngest within each release,
 releases are sorted from youngest to oldest.
 
+version 4.4.4:
+- avcodec/tests/snowenc: Fix 2nd test
+- avcodec/tests/snowenc: return a failure if DWT/IDWT mismatches
+- avcodec/snowenc: Fix visual weight calculation
+- avcodec/tests/snowenc: unbreak DWT tests
+- avcodec/vp3: Add missing check for av_malloc
+- avformat/nutdec: Add check for avformat_new_stream
+- avcodec/mpeg12dec: Check input size
+- avcodec/escape124: Fix some return codes
+- avcodec/escape124: fix signdness of end of input check
+- Use https for repository links
+- avcodec/rpzaenc: stop accessing out of bounds frame
+- avcodec/motionpixels: Mask pixels to valid values
+- avcodec/xpmdec: Check size before allocation to avoid truncation
+- avcodec/bink: Avoid undefined out of array end pointers in binkb_decode_plane()
+- avcodec/bink: Fix off by 1 error in ref end
+- avcodec/utils: Ensure linesize for SVQ3
+- avcodec/utils: allocate a line more for VC1 and WMV3
+- avcodec/videodsp_template: Adjust pointers to avoid undefined pointer things
+- avcodec/pngdec: Check deloco index more exactly
+- avcodec/ffv1dec: Check that num h/v slices is supported
+- avformat/mov: Check samplesize and offset to avoid integer overflow
+- avcodec/pictordec: Remove mid exit branch
+- avcodec/eac3dec: avoid float noise in fixed mode addition to overflow
+- avcodec/utils: use 32pixel alignment for bink
+- avcodec/scpr3: Check bx
+- avcodec/012v: Order operations for odd size handling
+- avcodec/eatgq: : Check index increments in tgq_decode_block()
+- avcodec/scpr: Test bx before use
+- avformat/mxfdec: Use 64bit in remainder
+- avcodec/sunrast: Fix maplength check
+- avcodec/wavpack: Avoid undefined shift in get_tail()
+- avcodec/wavpack: Check for end of input in wv_unpack_dsd_high()
+- avformat/id3v2: Check taglen in read_uslt()
+- avcodec/tiff: Ignore tile_count
+- avcodec/ffv1dec: restructure slice coordinate reading a bit
+- avcodec/mlpdec: Check max matrix instead of max channel in noise check
+- swscale/input: Use more unsigned intermediates
+- avcodec/alsdec: The minimal block is at least 7 bits
+- avformat/replaygain: avoid undefined / negative abs
+- swscale/output: Bias 16bps output calculations to improve non overflowing range
+- avcodec/speedhq: Check buf_size to be big enough for DC
+- avcodec/ffv1dec: Fail earlier if prior context is corrupted
+- avcodec/nvenc: fix b-frame DTS behavior with fractional framerates
+- avfilter/vf_untile: swap the chroma shift values used for plane offsets
+- avcodec/nvenc: fix vbv buffer size in cq mode
+- avcodec/mjpegenc: take into account component count when writing the SOF header size
+- swscale: aarch64: Fix yuv2rgb with negative stride
+
+version 4.4.3:
+- avformat/vividas: Check packet size
+- configure: link to libatomic when it's present
+- avcodec/dstdec: Check for overflow in build_filter()
+- avformat/spdifdec: Use 64bit to compute bit rate
+- avformat/rpl: Use 64bit for duration computation
+- avformat/xwma: Use av_rescale() for duration computation
+- avformat/sdsdec: Use av_rescale() to avoid intermediate overflow in duration calculation
+- avformat/sbgdec: Check ts_int in genrate_intervals
+- avformat/rmdec: check tag_size
+- avformat/nutdec: Check fields
+- avformat/flvdec: Use 64bit for sum_flv_tag_size
+- avformat/jacosubdec: Fix overflow in get_shift()
+- avformat/dxa: avoid bpc overflows
+- avformat/cafdec: Check that nb_frasmes fits within 64bit
+- avformat/asfdec_o: Limit packet offset
+- avformat/ape: Check frames size
+- avformat/icodec: Check nb_pal
+- avformat/aiffdec: Use 64bit for block_duration use
+- avformat/aiffdec: Check block_duration
+- avformat/mxfdec: only probe max run in
+- avformat/mxfdec: Check run_in is within 65536
+- avcodec/mjpegdec: Check for unsupported bayer case
+- avcodec/apedec: Fix integer overflow in filter_3800()
+- avcodec/tta: Check 24bit scaling for overflow
+- avcodec/mobiclip: Check quantizer for overflow
+- avcodec/exr: Check preview psize
+- avcodec/tiff: Fix loop detection
+- libavformat/hls: Free keys
+- avcodec/fmvc: Move frame allocation to a later stage
+- avfilter/vf_showinfo: remove backspaces
+- avcodec/speedhq: Check width
+- avcodec/bink: disallow odd positioned scaled blocks
+- avformat/asfdec_o: limit recursion depth in asf_read_unknown()
+- doc/git-howto.texi: Document commit signing
+- libavcodec/8bps: Check that line lengths fit within the buffer
+- avcodec/midivid: Perform lzss_uncompress() before ff_reget_buffer()
+- libavformat/iff: Check for overflow in body_end calculation
+- avformat/avidec: Prevent entity expansion attacks
+- avcodec/h263dec: Sanity check against minimal I/P frame size
+- avcodec/hevcdec: Check s->ref in the md5 path similar to hwaccel
+- avcodec/mpegaudiodec_template: use unsigned shift in handle_crc()
+- avformat/subviewerdec: Make read_ts() more flexible
+- avcodec/mjpegdec: bayer and rct are incompatible
+- MAINTAINERS: Add ED25519 key for signing my commits in the future
+- avcodec/hevc_filter: copy_CTB() only within width&height
+- avcodec/tiff: Check tile_length and tile_width
+- avcodec/mss4: Check image size with av_image_check_size2()
+- avformat/flvdec: Check for EOF in index reading
+- avformat/nutdec: Check get_packetheader() in mainheader
+- avformat/asfdec_f: Use 64bit for packet start time
+- avcodec/exr: Check x/ysize
+- tools/target_dec_fuzzer: Adjust threshold for MMVIDEO
+- avcodec/lagarith: Check dst/src in zero run code
+- avcodec/h264dec: Skip late SEI
+- avcodec/sbrdsp_fixed: Fix integer overflows in sbr_qmf_deint_neg_c()
+- avfilter/vf_signature: Fix integer overflow in filter_frame()
+- avformat/rtsp: break on unknown protocols
+- avcodec/hevcdsp_template: stay within tables in sao_band_filter()
+- avcodec/tiff: Check pixel format types for dng
+- avcodec/qpeldsp: copy less for the mc0x cases
+- avformat/aaxdec: Check for empty segments
+- avcodec/ffv1dec: Limit golomb rice coded slices to width 8M
+- avformat/iff: simplify duration calculation
+- avcodec/wnv1: Check for width =1
+- avcodec/ffv1dec_template: fix indention
+- avformat/sctp: close socket on errors
+- avcodec/aasc: Fix indention
+- avcodec/qdrw: adjust max colors to array size
+- avcodec/alacdsp: Make intermediates unsigned
+- avformat/aiffdec: cleanup size handling for extreem cases
+- avformat/matroskadec: avoid integer overflows in SAR computation
+- avcodec/jpeglsdec: fix end check for xfrm
+- avcodec/cdgraphics: limit scrolling to the line
+- avformat/hls: Limit start_seq_no to one bit less
+- avformat/aiffdec: avoid integer overflow in get_meta()
+- avformat/ape: more bits in size for less overflows
+- avformat/aviobuf: Check buf_size in ffio_ensure_seekback()
+- avformat/bfi: Check offsets better
+- avformat/asfdec_f: Check packet_frag_timestamp
+- avcodec/texturedspenc: Fix indexing in color distribution determination
+- avformat/act: Check ff_get_wav_header() for failure
+- avcodec/libxavs2: Improve r redundancy in occured
+- avformat/libzmq: Improve r redundancy in occured
+- avfilter/vsrc_mandelbrot: Check for malloc failure
+- avfilter/vf_frei0r: Copy to frame allocated according to frei0r requirements
+- avfilter/video: Add ff_default_get_video_buffer2() to set specific alignment
+- avformat/genh: Check sample rate
+- configure: bump year
+- lavc/videotoolbox: do not pass AVCodecContext to decoder output callback
+- lavc/pthread_frame: always transfer stashed hwaccel state
+- avcodec/arm/sbcenc: avoid callee preserved vfp registers
+- avfilter/vf_scale: overwrite the width and height expressions with the original values
+- lavc/pthread_frame: avoid leaving stale hwaccel state in worker threads
+- configure: extend SDL check to accept all 2.x versions
+- lavf/tls_mbedtls: add support for mbedtls version 3
+
+version 4.4.2:
+- fate: update reference files after the recent dash manifest muxer changes
+- avformat/webmdashenc: fix on-demand profile string
+- Update for FFmpeg 4.4.2
+- avcodec/exr: Avoid signed overflow in displayWindow
+- avcodec/diracdec: avoid signed integer overflow in global mv
+- avcodec/takdsp: Fix integer overflow in decorrelate_sf()
+- avcodec/apedec: fix a integer overflow in long_filter_high_3800()
+- avfilter/vf_subtitles: pass storage size to libass
+- avformat/aqtitledec: Skip unrepresentable durations
+- avformat/cafdec: Do not store empty keys in read_info_chunk()
+- avformat/mxfdec: Do not clear array in mxf_read_strong_ref_array() before writing
+- avformat/mxfdec: Check for avio_read() failure in mxf_read_strong_ref_array()
+- avformat/mxfdec: Check count in mxf_read_strong_ref_array()
+- avformat/hls: Check target_duration
+- avcodec/pixlet: Avoid signed integer overflow in scaling in filterfn()
+- avformat/matroskadec: Check pre_ns
+- avcodec/sonic: Use unsigned for predictor_k to avoid undefined behavior
+- avcodec/libuavs3d: Check ff_set_dimensions() for failure
+- avcodec/mjpegbdec: Set buf_size
+- avformat/matroskadec: Use rounded down duration in get_cue_desc() check
+- avcodec/argo: Check packet size
+- avcodec/g729_parser: Check channels
+- avformat/avidec: Check height
+- avformat/rmdec: Better duplicate tags check
+- avformat/mov: Disallow empty sidx
+- avformat/argo_asf: Fix order of operations in error check in argo_asf_write_trailer()
+- avformat/matroskadec: Check duration
+- avformat/mov: Corner case encryption error cleanup in mov_read_senc()
+- avcodec/jpeglsdec: Fix if( code style
+- avcodec/jpeglsdec: Check get_ur_golomb_jpegls() for error
+- avcodec/motion_est: fix indention of ff_get_best_fcode()
+- avcodec/motion_est: Fix xy indexing on range violation in ff_get_best_fcode()
+- avformat/hls: Use unsigned for iv computation
+- avcodec/jpeglsdec: Increase range for N in ls_get_code_runterm() by using unsigned
+- avformat/matroskadec: Check desc_bytes
+- avformat/utils: Fix invalid NULL pointer operation in ff_parse_key_value()
+- avformat/matroskadec: Fix infinite loop with bz decompression
+- avformat/mov: Check size before subtraction
+- avcodec/cfhd: Avoid signed integer overflow in coeff
+- avcodec/apedec: Fix integer overflows in predictor_update_3930()
+- avcodec/apedec: fix integer overflow in 8bit samples
+- avformat/flvdec: timestamps cannot use the full int64 range
+- avcodec/tiff: Remove messing with jpeg context
+- avcodec/tiff: Use ff_set_dimensions() for setting up mjpeg context dimensions
+- avcodec/tiff: Pass max_pixels to mjpeg context
+- avcodec/vqavideo: reset accounting on error
+- avcodec/alacdsp: fix integer overflow in decorrelate_stereo()
+- avformat/4xm: Check for duplicate track ids
+- avformat/4xm: Consider max_streams on reallocating tracks array
+- avformat/mov: Check next offset in mov_read_dref()
+- avformat/vivo: Favor setting fps from explicit fractions
+- avformat/vivo: Do not use the general expression evaluator for parsing a floating point value
+- avformat/mxfdec: Check for duplicate mxf_read_index_entry_array()
+- avcodec/apedec: Change avg to uint32_t
+- avformat/mxfdec: Check component_depth in mxf_get_color_range()
+- avformat/mov: Disallow duplicate smdm
+- avformat/mov: Check for EOF in mov_read_glbl()
+- avcodec/vp3: Check version in all cases when VP4 code is not built
+- avformat/mov: Check channels for mov_parse_stsd_audio()
+- avformat/avidec: Check read_odml_index() for failure
+- avformat/aiffdec: Use av_rescale() for bitrate
+- avformat/aiffdec: sanity check block_align
+- avformat/aiffdec: Check sample_rate
+- avcodec/libdav1d: free the Dav1dData packet on dav1d_send_data() failure
+- avcodec/zmbvenc: Fix memleak upon init error
+- avcodec/dnxhdenc: Fix segfault when using too many slice threads
+- avcodec/wma(dec|enc): Fix memleaks upon allocation error
+- avfilter/avfilter: Actually error out on init error
+- avcodec/opus_silk: Remove wrong size information in function declaration
+- avformat/omadec: Don't output uninitialized values
+- avformat/jacosubenc: Fix writing extradata
+- avformat/cafenc: Fix memleak when trailer is never written
+- avformat/cafenc: Don't segfault upon allocation error
+- avformat/cafenc: Fix potential integer overflow
+- avformat/movenc: Limit ism_lookahead to a sane value
+- avutil/utils: Remove racy check from avutil_version()
+- avformat/sccdec: Don't use uninitialized data, fix crash, simplify logic
+- avformat/subtitles: Honour ff_subtitles_read_line() documentation
+- avformat/tee: Fix leak of FIFO-options dictionary
+- avformat/tee: Fix leak of strings
+- avcodec/rasc: Fix potential use of uninitialized value
+- avfilter/vf_w3fdif: Fix segfault on allocation error
+- avfilter/af_surround: Fix memleaks upon allocation error
+- avfilter/af_vibrato: Fix segfault upon allocation error
+- avfilter/aeval: Fix leak of expressions upon reallocation error
+- avdevice/xv: Increase array size
+- avfilter/asrc_flite: Fix use-after-frees
+- avfilter/asrc_flite: Don't segfault when using list_voices option
+- Revert "avfilter/vf_idet: reduce noisyness if the filter has been auto inserted"
+- avformat/matroskadec: Don't unnecessarily reduce aspect ratio
+- avcodec/h263: Fix global-buffer-overflow with noout flag2 set
+- avcodec/vaapi_encode: Fix segfault upon closing uninitialized encoder
+- avcodec/movtextenc: Fix infinite loop due to variable truncation
+- avcodec/libopenh264dec: Increase array sizes, fix stack-buffer overread
+- avcodec/libkvazaar: Increase array size
+- avformat/aadec: Don't use the same loop counter in inner and outer loop
+- avformat/moflex: Don't use uninitialized timebase for data stream
+- lavf/udp: do not return an uninitialized value from udp_open()
+- avcodec/nvenc: zero-initialize NV_ENC_REGISTER_RESOURCE struct
+- configure: Add missing libshine->mpegaudioheader dependency
+- avcodec/Makefile: Add missing entry for ADPCM_IMA_AMV_ENCODER
+- avcodec/Makefile: Only compile nvenc.o if needed
+- avcodec/av1_vaapi: improve decode quality
+- avcodec/av1_vaapi: enable segmentation features
+- avcodec/av1_vaapi: setting 2 output surface for film grain
+- avcodec/vaapi: increase av1 decode pool size
+- avcodec/dxva2_av1: fix global motion params
+- avcodec/av1_vaapi: add gm params valid check
+- avcodec/av1dec: support setup shear process
+- avcodec/av1: extend some definitions in spec section 3
+- cbs_av1: fix incorrect data type
+- avcodec/libdav1d: let libdav1d choose optimal max frame delay
+- avcodec/libdav1d: pass auto threads value to libdav1d
+
 version 4.4.1:
 - avcodec/flac_parser: Consider AV_INPUT_BUFFER_PADDING_SIZE
 - avcodec/ttadsp: Fix integer overflows in tta_filter_process_c()

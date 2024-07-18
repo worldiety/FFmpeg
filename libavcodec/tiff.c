@@ -100,7 +100,6 @@ typedef struct TiffContext {
     int is_tiled;
     int tile_byte_counts_offset, tile_offsets_offset;
     int tile_width, tile_length;
-    int tile_count;
 
     int is_jpeg;
 
@@ -735,19 +734,6 @@ static int dng_decode_jpeg(AVCodecContext *avctx, AVFrame *frame,
     return 0;
 }
 
-static int dng_decode_strip(AVCodecContext *avctx, AVFrame *frame)
-{
-    TiffContext *s = avctx->priv_data;
-
-    s->jpgframe->width  = s->width;
-    s->jpgframe->height = s->height;
-
-    s->avctx_mjpeg->width = s->width;
-    s->avctx_mjpeg->height = s->height;
-
-    return dng_decode_jpeg(avctx, frame, s->stripsize, 0, 0, s->width, s->height);
-}
-
 static int tiff_unpack_strip(TiffContext *s, AVFrame *p, uint8_t *dst, int stride,
                              const uint8_t *src, int size, int strip_start, int lines)
 {
@@ -786,6 +772,7 @@ static int tiff_unpack_strip(TiffContext *s, AVFrame *p, uint8_t *dst, int strid
     if (s->is_bayer) {
         av_assert0(width == (s->bpp * s->width + 7) >> 3);
     }
+    av_assert0(!(s->is_bayer && is_yuv));
     if (p->format == AV_PIX_FMT_GRAY12) {
         av_fast_padded_malloc(&s->yuv_line, &s->yuv_line_size, width);
         if (s->yuv_line == NULL) {
@@ -869,7 +856,9 @@ static int tiff_unpack_strip(TiffContext *s, AVFrame *p, uint8_t *dst, int strid
             av_log(s->avctx, AV_LOG_ERROR, "More than one DNG JPEG strips unsupported\n");
             return AVERROR_PATCHWELCOME;
         }
-        if ((ret = dng_decode_strip(s->avctx, p)) < 0)
+        if (!s->is_bayer)
+            return AVERROR_PATCHWELCOME;
+        if ((ret = dng_decode_jpeg(s->avctx, p, s->stripsize, 0, 0, s->width, s->height)) < 0)
             return ret;
         return 0;
     }
@@ -987,11 +976,8 @@ static int dng_decode_tiles(AVCodecContext *avctx, AVFrame *frame,
     int pos_x = 0, pos_y = 0;
     int ret;
 
-    s->jpgframe->width  = s->tile_width;
-    s->jpgframe->height = s->tile_length;
-
-    s->avctx_mjpeg->width = s->tile_width;
-    s->avctx_mjpeg->height = s->tile_length;
+    if (s->tile_width <= 0 || s->tile_length <= 0)
+        return AVERROR_INVALIDDATA;
 
     has_width_leftover = (s->width % s->tile_width != 0);
     has_height_leftover = (s->height % s->tile_length != 0);
@@ -1001,7 +987,7 @@ static int dng_decode_tiles(AVCodecContext *avctx, AVFrame *frame,
     tile_count_y = (s->height + s->tile_length - 1) / s->tile_length;
 
     /* Iterate over the number of tiles */
-    for (tile_idx = 0; tile_idx < s->tile_count; tile_idx++) {
+    for (tile_idx = 0; tile_idx < tile_count_x * tile_count_y; tile_idx++) {
         tile_x = tile_idx % tile_count_x;
         tile_y = tile_idx / tile_count_x;
 
@@ -1421,7 +1407,6 @@ static int tiff_decode_tag(TiffContext *s, AVFrame *frame)
         break;
     case TIFF_TILE_OFFSETS:
         s->tile_offsets_offset = off;
-        s->tile_count = count;
         s->is_tiled = 1;
         break;
     case TIFF_TILE_BYTE_COUNTS:
@@ -1777,7 +1762,7 @@ static int decode_frame(AVCodecContext *avctx,
     TiffContext *const s = avctx->priv_data;
     AVFrame *const p = data;
     ThreadFrame frame = { .f = data };
-    unsigned off, last_off;
+    unsigned off, last_off = 0;
     int le, ret, plane, planes;
     int i, j, entries, stride;
     unsigned soff, ssize;
@@ -1842,7 +1827,6 @@ again:
     /** whether we should process this multi-page IFD's next page */
     retry_for_page = s->get_page && s->cur_page + 1 < s->get_page;  // get_page is 1-indexed
 
-    last_off = off;
     if (retry_for_page) {
         // set offset to the next IFD
         off = ff_tget_long(&s->gb, le);
@@ -1860,6 +1844,7 @@ again:
             avpriv_request_sample(s->avctx, "non increasing IFD offset");
             return AVERROR_INVALIDDATA;
         }
+        last_off = off;
         if (off >= UINT_MAX - 14 || avpkt->size < off + 14) {
             av_log(avctx, AV_LOG_ERROR, "IFD offset is greater than image size\n");
             return AVERROR_INVALIDDATA;
@@ -1916,7 +1901,7 @@ again:
         return AVERROR_INVALIDDATA;
     }
 
-    has_tile_bits  = s->is_tiled || s->tile_byte_counts_offset || s->tile_offsets_offset || s->tile_width || s->tile_length || s->tile_count;
+    has_tile_bits  = s->is_tiled || s->tile_byte_counts_offset || s->tile_offsets_offset || s->tile_width || s->tile_length;
     has_strip_bits = s->strippos || s->strips || s->stripoff || s->rps || s->sot || s->sstype || s->stripsize || s->stripsizesoff;
 
     if (has_tile_bits && has_strip_bits) {
@@ -2169,6 +2154,7 @@ static av_cold int tiff_init(AVCodecContext *avctx)
     s->avctx_mjpeg->flags2 = avctx->flags2;
     s->avctx_mjpeg->dct_algo = avctx->dct_algo;
     s->avctx_mjpeg->idct_algo = avctx->idct_algo;
+    s->avctx_mjpeg->max_pixels = avctx->max_pixels;
     ret = avcodec_open2(s->avctx_mjpeg, codec, NULL);
     if (ret < 0) {
         return ret;

@@ -128,10 +128,6 @@ static int rm_read_audio_stream_info(AVFormatContext *s, AVIOContext *pb,
     uint32_t version;
     int ret;
 
-    // Duplicate tags
-    if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
-        return AVERROR_INVALIDDATA;
-
     /* ra type header */
     version = avio_rb16(pb); /* version */
     if (version == 3) {
@@ -330,6 +326,11 @@ int ff_rm_read_mdpr_codecdata(AVFormatContext *s, AVIOContext *pb,
         return AVERROR_INVALIDDATA;
     if (codec_data_size == 0)
         return 0;
+
+    // Duplicate tags
+    if (   st->codecpar->codec_type != AVMEDIA_TYPE_UNKNOWN
+        && st->codecpar->codec_type != AVMEDIA_TYPE_DATA)
+        return AVERROR_INVALIDDATA;
 
     avpriv_set_pts_info(st, 64, 1, 1000);
     codec_pos = avio_tell(pb);
@@ -564,6 +565,8 @@ static int rm_read_header(AVFormatContext *s)
     }
 
     tag_size = avio_rb32(pb);
+    if (tag_size < 0)
+        return AVERROR_INVALIDDATA;
     avio_skip(pb, tag_size - 8);
 
     for(;;) {
