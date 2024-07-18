@@ -110,7 +110,16 @@ class FFmpegConan(ConanFile):
             "--enable-lto",
             "--disable-vdpau",
         ]
-        
+
+    @property
+    def _arch(self) -> str:
+        arch = str(self.settings.arch)
+        if re.match("armv8*",  arch): return "aarch64"
+        elif re.match("arm.*", arch): return "arm"
+        elif re.match("x86", arch): return "x86_32"
+        elif re.match("x86_64", arch): return "x86_64"
+        else: raise Exception(f"Arch {arch} not matched")
+    
     def _build_options(self):
         if not cross_building(self):
             return []            
@@ -119,10 +128,7 @@ class FFmpegConan(ConanFile):
         
         e = lambda x: os.environ[x] if x in os.environ else "false"
        
-        if s.os == "Android" and s.arch == "armv7":
-            arch = "arm"
-        else:
-            arch = re.match("([^-]+)-.*", chost).group(1)
+        arch = self._arch
         
         if is_apple_os(self):
             target_os = "darwin"
@@ -168,7 +174,7 @@ class FFmpegConan(ConanFile):
         tc.extra_cflags.append(os.environ.get("CFLAGS", ""))
         tc.extra_cxxflags.append(os.environ.get("CXXFLAGS", ""))
         tc.extra_ldflags.append(os.environ.get("LDFLAGS", ""))
-
+        
         #for f in [ "CFLAGS", "CXXFLAGS", "LDFLAGS", "CPPFLAGS", "CXXCPPFLAGS" ]:
         #    if f in os.environ: tc.exappend_def(vars, f, os.environ[f])
             
@@ -194,6 +200,8 @@ class FFmpegConan(ConanFile):
                 cpp_flag(f"--sysroot={self.deps_env_info.SYSROOT}")
 
         tc.configure_args.clear()
+        if self.settings.arch == "x86": tc.configure_args.append("--disable-asm")
+        
         tc.configure_args += [
             "--disable-doc",
             f"--prefix={self.package_folder}",
