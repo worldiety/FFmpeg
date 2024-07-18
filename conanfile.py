@@ -116,8 +116,8 @@ class FFmpegConan(ConanFile):
         arch = str(self.settings.arch)
         if re.match("armv8*",  arch): return "aarch64"
         elif re.match("arm.*", arch): return "arm"
-        elif re.match("x86", arch): return "x86_32"
-        elif re.match("x86_64", arch): return "x86_64"
+        elif arch == "x86_64": return "x86_64"
+        elif arch == "x86": return "x86_32"        
         else: raise Exception(f"Arch {arch} not matched")
     
     def _build_options(self):
